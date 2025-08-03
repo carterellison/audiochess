@@ -52,7 +52,7 @@ else:
     st.write(f"Directory '{stockfish_dir}' does not exist")
 
 # 5. File permission bits for your Stockfish binary
-file_path = os.path.join(stockfish_dir, "stockfish_linux/stockfish-ubuntu-x86-64-avx2")
+file_path = os.path.join(stockfish_dir, "stockfish-ubuntu-x86-64-avx2")
 if os.path.exists(file_path):
     mode = os.stat(file_path).st_mode
     st.write(f"File permissions for {file_path}: {oct(mode)}")
