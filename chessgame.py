@@ -100,7 +100,7 @@ st.write(f"Others execute: {others_exec}")
 
 
 # Uncomment for running on cloud
-stockfish_path = "stockfish_linux/stockfish-ubuntu-x86-64"
+stockfish_path = "stockfish_linux/stockfish-ubuntu-x86-64-avx2"
 
 # create board object
 if "board" not in st.session_state:
