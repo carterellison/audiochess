@@ -15,8 +15,8 @@ import chess.pgn
 import io
 
 # Uncomment for running locally
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 # stockfish_path = "stockfish_windows\\stockfish-windows-x86-64.exe"
 
 # Uncomment for running on cloud
@@ -34,7 +34,8 @@ class Orchestrator:
     # control processes
     def callStockfish(self, fen, depth=18):
         path = stockfish_path
-        computer = Stockfish(path=path)
+        # computer = Stockfish(path=path)
+        computer = Stockfish()
         computer.set_fen_position(fen)
         return computer.get_best_move()
 
