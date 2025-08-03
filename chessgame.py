@@ -15,9 +15,26 @@ import chess.pgn
 import io
 
 # Uncomment for running locally
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 # stockfish_path = "stockfish_windows\\stockfish-windows-x86-64.exe"
+
+import stat
+
+file_path = "stockfish_linux/stockfish-ubuntu-x86-64"
+
+# Get file mode bits
+mode = os.stat(file_path).st_mode
+
+# Check execute bits for user, group, others
+user_exec = bool(mode & stat.S_IXUSR)   # Owner execute
+group_exec = bool(mode & stat.S_IXGRP)  # Group execute
+others_exec = bool(mode & stat.S_IXOTH) # Others execute
+
+st.write(f"User execute: {user_exec}")
+st.write(f"Group execute: {group_exec}")
+st.write(f"Others execute: {others_exec}")
+
 
 # Uncomment for running on cloud
 stockfish_path = "stockfish_linux/stockfish-ubuntu-x86-64"
@@ -34,7 +51,7 @@ class Orchestrator:
     # control processes
     def callStockfish(self, fen, depth=18):
         path = stockfish_path
-        # computer = Stockfish(path=path)
+        computer = Stockfish(path=path)
         computer = Stockfish()
         computer.set_fen_position(fen)
         return computer.get_best_move()
