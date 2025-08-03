@@ -24,6 +24,38 @@ import stat
 
 #######
 
+import urllib.request
+import zipfile
+import subprocess
+
+
+STOCKFISH_URL = "https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-modern.zip"
+ZIP_PATH = "stockfish.zip"
+EXTRACT_DIR = "stockfish_bin"
+BINARY_NAME = "stockfish-ubuntu-x86-64-modern"
+
+@st.cache_resource(show_spinner="Downloading Stockfish...")
+def setup_stockfish() -> str:
+    if not os.path.exists(ZIP_PATH):
+        urllib.request.urlretrieve(STOCKFISH_URL, ZIP_PATH)
+    with zipfile.ZipFile(ZIP_PATH, 'r') as zip_ref:
+        zip_ref.extractall(EXTRACT_DIR)
+    binary_path = os.path.join(EXTRACT_DIR, BINARY_NAME)
+    os.chmod(binary_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+                           stat.S_IRGRP | stat.S_IXGRP |
+                           stat.S_IROTH | stat.S_IXOTH)
+    return binary_path
+
+binary_path = setup_stockfish()
+
+@st.cache_resource
+def load_stockfish(path: str) -> Stockfish:
+    return Stockfish(path=path)
+
+computer = load_stockfish(binary_path)
+
+#######
+
 import sys
 import subprocess
 
@@ -121,8 +153,8 @@ class Orchestrator:
     # control processes
     def callStockfish(self, fen, depth=18):
         path = stockfish_path
-        computer = Stockfish(path=path)
-        computer = Stockfish()
+        # computer = Stockfish(path=path)
+        # computer = Stockfish()
         computer.set_fen_position(fen)
         return computer.get_best_move()
 
