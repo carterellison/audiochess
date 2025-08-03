@@ -15,8 +15,8 @@ import chess.pgn
 import io
 
 # Uncomment for running locally
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 # stockfish_path = "stockfish_windows\\stockfish-windows-x86-64.exe"
 
 import stat
@@ -24,122 +24,122 @@ import stat
 
 #######
 
-import urllib.request
-import zipfile
-import subprocess
+# import urllib.request
+# import zipfile
+# import subprocess
 
 
-STOCKFISH_URL = "https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-modern.zip"
-ZIP_PATH = "stockfish.zip"
-EXTRACT_DIR = "stockfish_bin"
-BINARY_NAME = "stockfish-ubuntu-x86-64-modern"
+# STOCKFISH_URL = "https://github.com/official-stockfish/Stockfish/releases/download/sf_16/stockfish-ubuntu-x86-64-modern.zip"
+# ZIP_PATH = "stockfish.zip"
+# EXTRACT_DIR = "stockfish_bin"
+# BINARY_NAME = "stockfish-ubuntu-x86-64-modern"
 
-@st.cache_resource(show_spinner="Downloading Stockfish...")
-def setup_stockfish() -> str:
-    if not os.path.exists(ZIP_PATH):
-        urllib.request.urlretrieve(STOCKFISH_URL, ZIP_PATH)
-    with zipfile.ZipFile(ZIP_PATH, 'r') as zip_ref:
-        zip_ref.extractall(EXTRACT_DIR)
-    binary_path = os.path.join(EXTRACT_DIR, BINARY_NAME)
-    os.chmod(binary_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
-                           stat.S_IRGRP | stat.S_IXGRP |
-                           stat.S_IROTH | stat.S_IXOTH)
-    return binary_path
+# @st.cache_resource(show_spinner="Downloading Stockfish...")
+# def setup_stockfish() -> str:
+#     if not os.path.exists(ZIP_PATH):
+#         urllib.request.urlretrieve(STOCKFISH_URL, ZIP_PATH)
+#     with zipfile.ZipFile(ZIP_PATH, 'r') as zip_ref:
+#         zip_ref.extractall(EXTRACT_DIR)
+#     binary_path = os.path.join(EXTRACT_DIR, BINARY_NAME)
+#     os.chmod(binary_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+#                            stat.S_IRGRP | stat.S_IXGRP |
+#                            stat.S_IROTH | stat.S_IXOTH)
+#     return binary_path
 
-binary_path = setup_stockfish()
+# binary_path = setup_stockfish()
 
-@st.cache_resource
-def load_stockfish(path: str) -> Stockfish:
-    return Stockfish(path=path)
+# @st.cache_resource
+# def load_stockfish(path: str) -> Stockfish:
+#     return Stockfish(path=path)
 
-computer = load_stockfish(binary_path)
+# computer = load_stockfish(binary_path)
 
-#######
+# #######
 
-import sys
-import subprocess
+# import sys
+# import subprocess
 
-file_path = "stockfish_linux/stockfish-ubuntu-x86-64-avx2"
+# file_path = "stockfish_linux/stockfish-ubuntu-x86-64-avx2"
 
-# Set permissions to: readable + executable by user, group, others
-os.chmod(file_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
-                      stat.S_IRGRP | stat.S_IXGRP |
-                      stat.S_IROTH | stat.S_IXOTH)
+# # Set permissions to: readable + executable by user, group, others
+# os.chmod(file_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+#                       stat.S_IRGRP | stat.S_IXGRP |
+#                       stat.S_IROTH | stat.S_IXOTH)
 
-st.title("Debug Environment Info")
+# st.title("Debug Environment Info")
 
-# 1. Show Python version
-st.write("Python version:", sys.version)
+# # 1. Show Python version
+# st.write("Python version:", sys.version)
 
-# 2. Show platform info
-import platform
-st.write("Platform:", platform.platform())
-st.write("System:", platform.system())
-st.write("Machine:", platform.machine())
+# # 2. Show platform info
+# import platform
+# st.write("Platform:", platform.platform())
+# st.write("System:", platform.system())
+# st.write("Machine:", platform.machine())
 
-# 3. Current working directory
-cwd = os.getcwd()
-st.write("Current working directory:", cwd)
+# # 3. Current working directory
+# cwd = os.getcwd()
+# st.write("Current working directory:", cwd)
 
-# 4. List files in current directory and stockfish folder
-st.write("Files in cwd:", os.listdir(cwd))
+# # 4. List files in current directory and stockfish folder
+# st.write("Files in cwd:", os.listdir(cwd))
 
-stockfish_dir = "stockfish_linux"
-if os.path.exists(stockfish_dir):
-    st.write(f"Files in '{stockfish_dir}':", os.listdir(stockfish_dir))
-else:
-    st.write(f"Directory '{stockfish_dir}' does not exist")
+# stockfish_dir = "stockfish_linux"
+# if os.path.exists(stockfish_dir):
+#     st.write(f"Files in '{stockfish_dir}':", os.listdir(stockfish_dir))
+# else:
+#     st.write(f"Directory '{stockfish_dir}' does not exist")
 
-# 5. File permission bits for your Stockfish binary
-file_path = os.path.join(stockfish_dir, "stockfish-ubuntu-x86-64-avx2")
-if os.path.exists(file_path):
-    mode = os.stat(file_path).st_mode
-    st.write(f"File permissions for {file_path}: {oct(mode)}")
-    st.write("User exec:", bool(mode & stat.S_IXUSR))
-    st.write("Group exec:", bool(mode & stat.S_IXGRP))
-    st.write("Others exec:", bool(mode & stat.S_IXOTH))
-else:
-    st.write(f"File {file_path} does not exist")
+# # 5. File permission bits for your Stockfish binary
+# file_path = os.path.join(stockfish_dir, "stockfish-ubuntu-x86-64-avx2")
+# if os.path.exists(file_path):
+#     mode = os.stat(file_path).st_mode
+#     st.write(f"File permissions for {file_path}: {oct(mode)}")
+#     st.write("User exec:", bool(mode & stat.S_IXUSR))
+#     st.write("Group exec:", bool(mode & stat.S_IXGRP))
+#     st.write("Others exec:", bool(mode & stat.S_IXOTH))
+# else:
+#     st.write(f"File {file_path} does not exist")
 
-# 6. Run 'ls -l' on stockfish binary (detailed permissions)
-if os.path.exists(file_path):
-    result = subprocess.run(["ls", "-l", file_path], capture_output=True, text=True)
-    st.write("ls -l output for Stockfish binary:", result.stdout)
+# # 6. Run 'ls -l' on stockfish binary (detailed permissions)
+# if os.path.exists(file_path):
+#     result = subprocess.run(["ls", "-l", file_path], capture_output=True, text=True)
+#     st.write("ls -l output for Stockfish binary:", result.stdout)
 
-# 7. Run Stockfish with --version to test it works
-if os.path.exists(file_path):
-    result = subprocess.run([file_path, "--version"], capture_output=True, text=True)
-    st.write("Stockfish --version stdout:", result.stdout)
-    st.write("Stockfish --version stderr:", result.stderr)
-    st.write("Stockfish --version returncode:", result.returncode)
-else:
-    st.write("Cannot run Stockfish version check; binary missing.")
+# # 7. Run Stockfish with --version to test it works
+# if os.path.exists(file_path):
+#     result = subprocess.run([file_path, "--version"], capture_output=True, text=True)
+#     st.write("Stockfish --version stdout:", result.stdout)
+#     st.write("Stockfish --version stderr:", result.stderr)
+#     st.write("Stockfish --version returncode:", result.returncode)
+# else:
+#     st.write("Cannot run Stockfish version check; binary missing.")
 
-###########
-
-
-file_path = "stockfish_linux/stockfish-ubuntu-x86-64-avx2"
-
-new_mode = os.stat(file_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
-os.chmod(file_path, new_mode)
-
-print("Updated execute permissions.")
-
-# Get file mode bits
-mode = os.stat(file_path).st_mode
-
-# Check execute bits for user, group, others
-user_exec = bool(mode & stat.S_IXUSR)   # Owner execute
-group_exec = bool(mode & stat.S_IXGRP)  # Group execute
-others_exec = bool(mode & stat.S_IXOTH) # Others execute
-
-st.write(f"User execute: {user_exec}")
-st.write(f"Group execute: {group_exec}")
-st.write(f"Others execute: {others_exec}")
+# ###########
 
 
-# Uncomment for running on cloud
-stockfish_path = "stockfish_linux/stockfish-ubuntu-x86-64-avx2"
+# file_path = "stockfish_linux/stockfish-ubuntu-x86-64-avx2"
+
+# new_mode = os.stat(file_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+# os.chmod(file_path, new_mode)
+
+# print("Updated execute permissions.")
+
+# # Get file mode bits
+# mode = os.stat(file_path).st_mode
+
+# # Check execute bits for user, group, others
+# user_exec = bool(mode & stat.S_IXUSR)   # Owner execute
+# group_exec = bool(mode & stat.S_IXGRP)  # Group execute
+# others_exec = bool(mode & stat.S_IXOTH) # Others execute
+
+# st.write(f"User execute: {user_exec}")
+# st.write(f"Group execute: {group_exec}")
+# st.write(f"Others execute: {others_exec}")
+
+
+# # Uncomment for running on cloud
+# stockfish_path = "stockfish_linux/stockfish-ubuntu-x86-64-avx2"
 
 # create board object
 if "board" not in st.session_state:
@@ -231,7 +231,8 @@ class Orchestrator:
         except:
             # no cloud eval available probably
             analysis = "Lichess failed"
-        stockfish_move = self.callStockfish(fen)
+        #stockfish_move = self.callStockfish(fen)
+        stockfish_move = self.callChessModel(fen)
         site.writeText("Stockfish: " + stockfish_move)
 
         try:
