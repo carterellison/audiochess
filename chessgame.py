@@ -27,6 +27,13 @@ import stat
 import sys
 import subprocess
 
+file_path = "stockfish_linux/stockfish-ubuntu-x86-64-avx2"
+
+# Set permissions to: readable + executable by user, group, others
+os.chmod(file_path, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR |
+                      stat.S_IRGRP | stat.S_IXGRP |
+                      stat.S_IROTH | stat.S_IXOTH)
+
 st.title("Debug Environment Info")
 
 # 1. Show Python version
