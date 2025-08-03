@@ -17,6 +17,10 @@ import io
 # Uncomment for running locally
 from dotenv import load_dotenv
 load_dotenv()
+stockfish_path = "stockfish_windows\\stockfish-windows-x86-64.exe"
+
+# Uncomment for running on cloud
+stockfish_path = "stockfish_linux\\"
 
 # create board object
 if "board" not in st.session_state:
@@ -29,7 +33,7 @@ class Orchestrator:
 
     # control processes
     def callStockfish(self, fen, depth=18):
-        path = "stockfish\\stockfish-windows-x86-64.exe"
+        path = stockfish_path
         computer = Stockfish(path=path)
         computer.set_fen_position(fen)
         return computer.get_best_move()
