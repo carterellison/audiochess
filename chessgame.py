@@ -23,6 +23,11 @@ import stat
 
 file_path = "stockfish_linux/stockfish-ubuntu-x86-64"
 
+new_mode = os.stat(file_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+os.chmod(file_path, new_mode)
+
+print("Updated execute permissions.")
+
 # Get file mode bits
 mode = os.stat(file_path).st_mode
 
