@@ -1,0 +1,4 @@
+openai
+chess
+stockfish
+python-dotenv
