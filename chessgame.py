@@ -15,12 +15,12 @@ import chess.pgn
 import io
 
 # Uncomment for running locally
-from dotenv import load_dotenv
-load_dotenv()
-stockfish_path = "stockfish_windows\\stockfish-windows-x86-64.exe"
+# from dotenv import load_dotenv
+# load_dotenv()
+# stockfish_path = "stockfish_windows\\stockfish-windows-x86-64.exe"
 
 # Uncomment for running on cloud
-stockfish_path = "stockfish_linux\\"
+stockfish_path = "stockfish_linux\\stockfish-ubuntu-x86-64"
 
 # create board object
 if "board" not in st.session_state:
