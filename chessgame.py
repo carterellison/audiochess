@@ -29,7 +29,7 @@ class Orchestrator:
 
     # control processes
     def callStockfish(self, fen, depth=18):
-        path = "stockfish\stockfish-windows-x86-64.exe"
+        path = "stockfish\\stockfish-windows-x86-64.exe"
         computer = Stockfish(path=path)
         computer.set_fen_position(fen)
         return computer.get_best_move()
