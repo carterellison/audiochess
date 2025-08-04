@@ -17,9 +17,9 @@ import io
 # Uncomment for running locally
 from dotenv import load_dotenv
 load_dotenv()
-# stockfish_path = "stockfish_windows\\stockfish-windows-x86-64.exe"
+stockfish_path = "stockfish_windows\\stockfish-windows-x86-64.exe"
 
-import stat
+# import stat
 
 
 #######
@@ -153,13 +153,13 @@ class Orchestrator:
     # control processes
     def callStockfish(self, fen, depth=18):
         path = stockfish_path
-        # computer = Stockfish(path=path)
+        computer = Stockfish(path=path)
         # computer = Stockfish()
         computer.set_fen_position(fen)
         return computer.get_best_move()
 
-    def callTextToSpeech(self, text):
-        speech_file_path = Path(__file__).parent / "speech.mp3"
+    def callTextToSpeech(self, text, file_name="speech.mp3"):
+        speech_file_path = Path(__file__).parent / file_name
 
         with self.client.audio.speech.with_streaming_response.create(
             model="gpt-4o-mini-tts",
@@ -324,6 +324,12 @@ class Orchestrator:
         
     def runProgram(self):
         site = website()
+        instructions = "Speak one of the following to start the game: \"computer\", \"tactic\", or \"pvp\". If you select \"tactic\", you should next specify a difficulty of \"easiest\", \"easier\", \"normal\", \"harder\", \"hardest\"."
+        site.writeText("Instructions:")
+        site.writeText(instructions)
+        self.callTextToSpeech(instructions, "instructions.mp3")
+        site.playAudio("instructions.mp3")
+        
         command = site.recordAudio()
         if (command):
             with open("recorded_audio.wav", "wb") as f:
