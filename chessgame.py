@@ -154,7 +154,6 @@ class Orchestrator:
     def callStockfish(self, fen, depth=18):
         path = stockfish_path
         computer = Stockfish(path=path)
-        # computer = Stockfish()
         computer.set_fen_position(fen)
         return computer.get_best_move()
 
@@ -218,13 +217,22 @@ class Orchestrator:
         site.writeText(response)
         if response == 'False':
             # prompt user again
-            site.writeText("Try again.")
+            error_message = "That input could not be understood. Please try another move"
+            site.writeText(error_message)
+            self.callTextToSpeech(error_message, "error.mp3")
+            site.playAudio("error.mp3")
+            site.showBoard(st.session_state.board)
             return
         try:
             st.session_state.board.push_san(response)
             fen = st.session_state.board.fen()
         except Exception as e:
             st.error(e)
+            error_message = "That move is invalid. Please try another move"
+            site.writeText(error_message)
+            self.callTextToSpeech(error_message, "error.mp3")
+            site.playAudio("error.mp3")
+            site.showBoard(st.session_state.board)
             return
         try:
             analysis = self.callChessModel(fen)
@@ -242,6 +250,11 @@ class Orchestrator:
 
         except Exception as e:
             st.error(e)
+            error_message = "That move is invalid. Please try another move"
+            site.writeText(error_message)
+            self.callTextToSpeech(error_message, "error.mp3")
+            site.playAudio("error.mp3")
+            site.showBoard(st.session_state.board)
             return
         site.showBoard(st.session_state.board)
         self.callTextToSpeech(analysis)
@@ -260,6 +273,11 @@ class Orchestrator:
             fen = st.session_state.board.fen()
         except Exception as e:
             st.error(e)
+            error_message = "That move is invalid. Please try another move"
+            site.writeText(error_message)
+            self.callTextToSpeech(error_message, "error.mp3")
+            site.playAudio("error.mp3")
+            site.showBoard(st.session_state.board)
             return
 
         site.showBoard(st.session_state.board)
@@ -292,9 +310,15 @@ class Orchestrator:
         sol_prompt = "Return only 'True' or 'False': is the chess move " + response + " equivalent to " + st.session_state.solution[0] + "?"
         equal = self.callLLM(sol_prompt)
         if equal == 'True':
-            site.writeText("Correct!")
+            message = "Correct!"
+            site.writeText(error_message)
+            self.callTextToSpeech(error_message, "message.mp3")
+            site.playAudio("message.mp3")
         else:
-            site.writeText("Incorrect, try again.")
+            error_message = "Incorrect, try again."
+            site.writeText(error_message)
+            self.callTextToSpeech(error_message, "error.mp3")
+            site.playAudio("error.mp3")
             return
         try:
             st.session_state.board.push_san(response)
@@ -305,14 +329,17 @@ class Orchestrator:
             st.error(e)
             return
         if len(st.session_state.solution) == 1:
-            site.writeText("You solved the puzzle!")
+            message = "You solved the puzzle!"
+            site.writeText(message)
+            self.callTextToSpeech(message, "message.mp3")
+            site.playAudio("message.mp3")
             return
         computer_move = st.session_state.solution[1]
         try:
             st.session_state.board.push_san(st.session_state.solution[1])
             st.session_state.solution = st.session_state.solution[2:]
             fen = st.session_state.board.fen()
-            site.writeText("Current fen: " + fen)
+            # site.writeText("Current fen: " + fen)
 
         except Exception as e:
             st.error(e)
@@ -324,7 +351,8 @@ class Orchestrator:
         
     def runProgram(self):
         site = website()
-        instructions = "Speak one of the following to start the game: \"computer\", \"tactic\", or \"pvp\". If you select \"tactic\", you should next specify a difficulty of \"easiest\", \"easier\", \"normal\", \"harder\", \"hardest\"."
+        st.title("Audio Chess")
+        instructions = "Speak one of the following to begin the game: \"computer\", \"tactic\", or \"pvp\". If you select \"tactic\", you should next specify a difficulty of \"easiest\", \"easier\", \"normal\", \"harder\", \"hardest\"."
         site.writeText("Instructions:")
         site.writeText(instructions)
         self.callTextToSpeech(instructions, "instructions.mp3")
@@ -344,6 +372,7 @@ class Orchestrator:
             if mode in modes:
                 #
                 st.session_state.mode = mode
+                site.showBoard(st.session_state.board)
             elif mode in difficulties:
                 #
                 st.session_state.difficulty = mode
@@ -367,6 +396,8 @@ class Orchestrator:
                         site.writeText("Specify one of the following difficulties: 'easiest', 'easier', 'normal', 'harder', or 'hardest'.")
                 else:
                     site.writeText("Specify one of the following modes: 'computer', 'pvp', or 'tactic'.")
+        else:
+            site.showBoard(st.session_state.board)
 
 
 
