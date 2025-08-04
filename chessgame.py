@@ -353,8 +353,8 @@ class Orchestrator:
         site = website()
         st.title("Audio Chess")
         instructions = "Speak one of the following to begin the game: \"computer\", \"tactic\", or \"pvp\". If you select \"tactic\", you should next specify a difficulty of \"easiest\", \"easier\", \"normal\", \"harder\", \"hardest\"."
-        site.writeText("Instructions:")
         site.writeText(instructions)
+        site.writeText("Audio Instructions:")
         self.callTextToSpeech(instructions, "instructions.mp3")
         site.playAudio("instructions.mp3")
         
