@@ -15,9 +15,9 @@ import chess.pgn
 import io
 
 # Uncomment for running locally
-# from dotenv import load_dotenv
-# load_dotenv()
-# stockfish_path = "stockfish_windows\\stockfish-windows-x86-64.exe"
+from dotenv import load_dotenv
+load_dotenv()
+stockfish_path = "stockfish_windows\\stockfish-windows-x86-64.exe"
 
 # import stat
 
@@ -214,7 +214,7 @@ class Orchestrator:
         prompt = "Convert the following message into chess notation. If the message is not a valid move in chess notation, return 'False'. In your message, return ONLY the output and NOTHING else."
         x = prompt + "\n" + x
         response = self.callLLM(x)
-        site.writeText(response)
+        # site.writeText(response)
         if response == 'False':
             # prompt user again
             error_message = "That input could not be understood. Please try another move"
@@ -241,12 +241,12 @@ class Orchestrator:
             analysis = "Lichess failed"
         #stockfish_move = self.callStockfish(fen)
         stockfish_move = self.callChessModel(fen)
-        site.writeText("Stockfish: " + stockfish_move)
+        # site.writeText("Stockfish: " + stockfish_move)
 
         try:
             st.session_state.board.push_san(stockfish_move) # pushing stockfish instead of lichess
             fen = st.session_state.board.fen()
-            site.writeText("Current fen: " + fen)
+            # site.writeText("Current fen: " + fen)
 
         except Exception as e:
             st.error(e)
@@ -258,12 +258,13 @@ class Orchestrator:
             return
         site.showBoard(st.session_state.board)
         self.callTextToSpeech(analysis)
+        site.writeText("(Audio): Computer move " + stockfish_move)
         site.playAudio("speech.mp3")
     def playPlayer(self, site, x):
         prompt = "Convert the following message into chess notation. If the message is not a valid move in chess notation, return 'False'. In your message, return ONLY the output and NOTHING else."
         x = prompt + "\n" + x
         response = self.callLLM(x)
-        site.writeText(response)
+        # site.writeText(response)
         if response == 'False':
             # prompt user again
             site.writeText("Try again.")
@@ -285,14 +286,16 @@ class Orchestrator:
     def setupPuzzle(self, site, diff):
         headers = {"Authorization": "Bearer " + os.environ.get('LICHESS_PUZZLE_TOKEN')}
         response = requests.get(f"https://lichess.org/api/puzzle/next?difficulty=" + diff, headers=headers, verify=False)
-        site.writeText(response.status_code)
-        site.writeText(response.json())
-        site.writeText(response.json()["game"]["pgn"])
+        # site.writeText(response.status_code)
+        print(response.json())
+        # print(response.json()["game"]["pgn"])
         for move in response.json()["game"]["pgn"].split(" "):
             st.session_state.board.push_san(move)
 
         site.showBoard(st.session_state.board)
         self.callTextToSpeech(response.json()["game"]["pgn"])
+        site.writeText("(Audio): Description of the board from previously played moves")
+        site.writeText("Previous moves: " + response.json()["game"]["pgn"])
         site.playAudio("speech.mp3")
         st.session_state.solution = response.json()["puzzle"]["solution"]
 
@@ -304,38 +307,44 @@ class Orchestrator:
         site.writeText(response)
         if response == 'False':
             # prompt user again
-            site.writeText("Try again.")
+            site.showBoard(st.session_state.board)
+            message = "That guess was not correct. Try again"
+            site.writeText(message)
+            self.callTextToSpeech(message, "message.mp3")
+            site.playAudio("message.mp3")
             return
         # prompt to see if solution is equivalent to input
         sol_prompt = "Return only 'True' or 'False': is the chess move " + response + " equivalent to " + st.session_state.solution[0] + "?"
         equal = self.callLLM(sol_prompt)
+        print("Equal: " + equal)
         if equal == 'True':
-            message = "Correct!"
-            site.writeText(error_message)
-            self.callTextToSpeech(error_message, "message.mp3")
+            message = "(Audio) Correct!"
+            site.writeText(message)
+            self.callTextToSpeech(message, "message.mp3")
             site.playAudio("message.mp3")
         else:
-            error_message = "Incorrect, try again."
+            error_message = "(Audio) Incorrect, try again."
             site.writeText(error_message)
             self.callTextToSpeech(error_message, "error.mp3")
             site.playAudio("error.mp3")
             return
-        try:
-            st.session_state.board.push_san(response)
-            fen = st.session_state.board.fen()
+        # try:
+        #     st.session_state.board.push_san(response.lower().replace(" ", ""))
+        #     fen = st.session_state.board.fen()
 
-        except Exception as e:
-            # 
-            st.error(e)
-            return
+        # except Exception as e:
+        #     # 
+        #     st.error(e)
+        #     return
         if len(st.session_state.solution) == 1:
-            message = "You solved the puzzle!"
+            message = "(Audio) You solved the puzzle!"
             site.writeText(message)
             self.callTextToSpeech(message, "message.mp3")
             site.playAudio("message.mp3")
             return
         computer_move = st.session_state.solution[1]
         try:
+            st.session_state.board.push_san(st.session_state.solution[0])
             st.session_state.board.push_san(st.session_state.solution[1])
             st.session_state.solution = st.session_state.solution[2:]
             fen = st.session_state.board.fen()
@@ -345,6 +354,7 @@ class Orchestrator:
             st.error(e)
             return
         site.showBoard(st.session_state.board)
+        site.writeText("(Audio): Computer move " + computer_move)
         self.callTextToSpeech(computer_move)
         site.playAudio("speech.mp3")
 
@@ -352,10 +362,9 @@ class Orchestrator:
     def runProgram(self):
         site = website()
         st.title("Audio Chess")
-        instructions = "Speak one of the following to begin the game: \"computer\", \"tactic\", or \"pvp\". If you select \"tactic\", you should next specify a difficulty of \"easiest\", \"easier\", \"normal\", \"harder\", \"hardest\"."
-        site.writeText(instructions)
-        site.writeText("Audio Instructions:")
+        instructions = "Speak one of the following to begin the game: \"computer\", \"tactic\", or \"pvp\". To play with the computer, say \"computer\". To play with another person, say \"pvp\" which stands for person vs person. To do chess puzzles, say \"tactic\". If you select \"tactic\", you should next specify a difficulty of \"easiest\", \"easier\", \"normal\", \"harder\", or \"hardest\"."
         self.callTextToSpeech(instructions, "instructions.mp3")
+        site.writeText("(Audio Instructions): " + instructions)
         site.playAudio("instructions.mp3")
         
         command = site.recordAudio()
@@ -366,16 +375,26 @@ class Orchestrator:
             mode_instructions = "Decide if the following message is trying to get the user to play chess vs a computer, chess vs another person, chess puzzles, or a chess move, OR setting the difficulty of puzzles/tactics. Return only the text string 'computer', 'pvp', 'tactic', or 'move', or 'none'; if the input is a difficulty level, return only the string 'easiest', 'easier', 'normal', 'hardest', or 'harder'. if the input does not fit any of the given categories. \n Input: " + x
             difficulties = ['easiest', 'easier', 'normal', 'harder', 'hardest']
             mode = self.callLLM(mode_instructions)
-            site.writeText(f":red[{mode}]")
+            x = "Heard input: " + x
             site.writeText(f":blue[{x}]")
+            # site.writeText(f":red[{'Chose option: ' + mode}]")  
             modes = ["computer", "pvp", "tactic"]
             if mode in modes:
                 #
                 st.session_state.mode = mode
+                if mode != 'tactic':
+                    message = "(Audio Instructions): Enter a move in chess notation. Example: \"E4\""
+                    site.writeText(message)
+                    self.callTextToSpeech(message, "prompt.mp3")
+                    site.playAudio("prompt.mp3")
                 site.showBoard(st.session_state.board)
             elif mode in difficulties:
                 #
                 st.session_state.difficulty = mode
+                message = "(Audio Instructions): Enter a move in chess notation. Example: \"E4\""
+                site.writeText(message)
+                self.callTextToSpeech(message, "prompt.mp3")
+                site.playAudio("prompt.mp3")
                 self.setupPuzzle(site, getattr(st.session_state, "difficulty"))
             elif mode == "move":
                 #
@@ -407,7 +426,7 @@ class website:
         st.write(text)
 
     def recordAudio(self):
-        sound = st.audio_input(label='enter a command')
+        sound = st.audio_input(label='(Audio Instructions): Click the microphone or press \'Enter\' to start recording audio', key='ENTER')
         return sound
     
     def playAudio(self, data):
